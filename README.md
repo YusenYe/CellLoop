@@ -75,10 +75,13 @@ OUTDIR=INDIR+'_'+str(int(BINSIZE//1000))+'kb'+'_knn='+str(knn_cell_num)
 ```
 **A.** main_dir：the directory of CellLoop package. **B.** DATASET:The dataset currently being analyzed. **C.** BINSIZE：bin size used for binning the contacts. **D.**  MAXDIST: maximum distance from diagonal to consider.  **E.**  knn_cell_num: maximum cell number of KNN graph.  **F.**  LOW_CUTOFF: cut-off for removing short-range contacts. **G.** GENOME: genome name; hgxx or mmxx.  **G.** GENOME: genome name; hgxx or mmxx. **H.** INDIR: the directory of the input single-cell 3D genome data. **I.** FILE_SUFFIX: suffix of the input files. **J.** MINCONCNUM: minimum contact number for single cells. **K.** CHR_COLUMNS and POS_COLUMN:two integer column numbers for chromosomes and two integer column numbers for read positions in singel-cell 3D genome file.  **L.** feature: the type of feature used for initializing the embedding of cells. **M.** OUTDIR:output directory. 
 You can also set more parameters in the create_parser() function of CellLoop package. For example, use "--threaded" and "--num-proc" to set the number of processes used in threaded mode. This mode utilizes multiprocessing on a single machine.
-### 1.  
-'''
+#### 1. execute CellLoop  
+We can execute CellLoop in the following command-line way, and we can also complete CellLoop step by step in the IDE. CellLoop includes 1. binning. 2. constructing a weighted knn graph. 3. generating the enhanced contact map of the single cell. 4.   
+```
+cd CellLoop
+conda activate CellLoop 
 python CellLoop.py
-'''
+```
 
 
 ## 4. Update Log
