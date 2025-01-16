@@ -4,8 +4,8 @@
 
 ### Latest updates: January 15, 2025，version 0.0.1
 ## Contents：
-1. [Overview](#1)
-2. [Installation](#2)
+1. [Overview](#Overviewn)
+2. [Installation](#Installation)
 3. [Usage](#Usage)
 4. [Update Log](#UpdateLog)
 5. [Maintainers](#Maintainers)
@@ -50,6 +50,7 @@ pip install -r requirements.txt
                                                       **Double-modality with 3D genomic and other omics data**: CellLoop obtains the initial cell embeddings through the data of other omics by uniform manifold approximation and projection (UMAP). For HiRES dataset, the data preprocessing process is provided in CellLoop package '/src/Hires_preprocess.py'. For GAGE-seq dataset, the data preprocessing process is provided in CellLoop package '/src/GAGE-seq_preprocess.py'. The generated single-cell files is saved as 'adata_rna.h5ad'
 
 ### Running CellLoop
+
 #### 0. We will take the analysis of the Dip-C dataset as an example to explain the meaning and default values of the parameters.
 ```
 #########################Initial parameters##############################################
@@ -75,15 +76,51 @@ OUTDIR=INDIR+'_'+str(int(BINSIZE//1000))+'kb'+'_knn='+str(knn_cell_num)
 ```
 **A.** main_dir：the directory of CellLoop package. **B.** DATASET:The dataset currently being analyzed. **C.** BINSIZE：bin size used for binning the contacts. **D.**  MAXDIST: maximum distance from diagonal to consider.  **E.**  knn_cell_num: maximum cell number of KNN graph.  **F.**  LOW_CUTOFF: cut-off for removing short-range contacts. **G.** GENOME: genome name; hgxx or mmxx.  **G.** GENOME: genome name; hgxx or mmxx. **H.** INDIR: the directory of the input single-cell 3D genome data. **I.** FILE_SUFFIX: suffix of the input files. **J.** MINCONCNUM: minimum contact number for single cells. **K.** CHR_COLUMNS and POS_COLUMN:two integer column numbers for chromosomes and two integer column numbers for read positions in singel-cell 3D genome file.  **L.** feature: the type of feature used for initializing the embedding of cells. **M.** OUTDIR:output directory. 
 You can also set more parameters in the create_parser() function of CellLoop package. For example, use "--threaded" and "--num-proc" to set the number of processes used in threaded mode. This mode utilizes multiprocessing on a single machine.
-#### 1. execute CellLoop  
-We can execute CellLoop in the following command-line way, and we can also complete CellLoop step by step in the IDE. CellLoop includes 1. binning. 2. constructing a weighted knn graph. 3. generating the enhanced contact map of the single cell. 4.   
+
+#### 1. Execute CellLoop  
+We can execute CellLoop in the following command-line way.
 ```
 cd CellLoop
 conda activate CellLoop 
 python CellLoop.py
 ```
+We can also execute CellLoop step1-5 by step in the IDE. CellLoop includes:
+**Step 1.** Binning: we first constructed an undirected graph with bins as nodes from the raw contact map of the single cell with a specified resolution (20kb) with bin_sets() function.
+```
+bin_sets(args.indir, args.suffix, binsize = args.binsize, outdir = bin_dir, \
+                      chr_columns = args.chr_columns, pos_columns = args.pos_columns, \
+                      low_cutoff = args.low_cutoff, mincontactnum=args.mincontactnum,dataset=args.dataset,n_proc = n_proc, rank = rank, logger = logger)
+```
+**Step 2.** Generating the enhanced contact map of the single cells: we constructed a weighted undirected k-NN graph with cells as nodes by connecting the single cell to its k-NNs based on Euclidean distance calculated using the initial cell embedding space and generated the enhanced contact map of the single cells using the information of neighboring cells.
+```
+get_aggr_cells(bin_dir=bin_dir,outdir=SampleAggrCell_dir,feature_dir=feature_dir,feature=feature,chrom_lens=chrom_dict,\
+                           n_proc=n_proc, rank=rank,binsize=args.binsize,k=knn_cell_num)
+```
+**Step 3.** Calling chromatin loops of single cells:   we defined an aggregating interaction strength matrix  based on approval of both intracell topology and intercell background strength of chromatin interactions. Next, CellLoop algorithm is used to distinguish chromatin loops from the aggregating interaction strength matrix by formulating our objective as a peak calling problem from a two-dimensional matrix.
+```
+scloops(indir = indir, outdir = scloops_outdir, chrom_lens = chrom_dict, \
+                            binsize = args.binsize, dist = args.dist, \
+                            neighborhood_limit_lower = args.local_lower_limit, \
+                            neighborhood_limit_upper = args.local_upper_limit,alpha=alpha,\
+                            rank = rank, n_proc = n_proc, max_mem = args.max_memory, logger = logger)
+```
+The scloops function can visually display results by specifying Figure = True. 
 
+**Step 4.** Generating chromatin loop frequency map(LFmap): We further merge chromatin loops of single cells detected by CellLoop to generate LFmap. 
+```
+aggreloops(indir = scloops_outdir,outdir = aggreloops_dir,\
+                       chrom_lens = chrom_dict, binsize = args.binsize,
+                       rank = rank, n_proc = n_proc, logger = logger)
+```
+The aggreloops function can visually display results by specifying Figure = True. 
+
+**Step 5.** Generating chromatin loops * cells matrix for downstream analysis.
+```
+clustercells(indir = aggreloops_dir,scloops_dir=scloops_outdir,outdir = clustercells_dir, chrom_lens = chrom_dict, binsize = args.binsize,
+                          rank = rank, n_proc = n_proc, logger = logger)        
+```
 
 ## 4. Update Log
 ## 5. Maintainers
+Yusen Ye (ysye@xdiian.edu.cn)
 ## 6. Citation
