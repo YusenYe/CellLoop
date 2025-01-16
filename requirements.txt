@@ -3,7 +3,6 @@ scipy==1.9.0
 statsmodels==0.13.5
 pandas==1.5.3
 networkx==3.1
-multiprocessing
 scanpy==1.9.8
 re==2.2.1
 node2vec==0.5.0
