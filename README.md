@@ -29,14 +29,11 @@ please follow the following steps:
 git clone https://github.com/YusenYe/CellLoop.git
 cd CellLoop
 ```
-4. Create a new conda environment using requirements.txt
+4. Create a new conda environment and install the relevant packages according to the requirements.txt.
 ```
-conda create -n CellLoop python=3.8
+conda create -n CellLoop python=3.8 -r requirements.txt
+pip install -r requirements.txt
 ```
-
-6. 
-
-
 ## 3. Usage
 ## 4. Update Log
 ## 5. Maintainers
