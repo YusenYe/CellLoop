@@ -35,6 +35,23 @@ conda create -n CellLoop python=3.8 -r requirements.txt
 pip install -r requirements.txt
 ```
 ## 3. Usage
+### Download the dataset that will be analyzed.
+- Dip-C dataset:[Tan,2021](https://www.cell.com/cell/fulltext/S0092-8674(20)31754-2?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS0092867420317542%3Fshowall%3Dtrue) 
+                [https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE162511](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE162511)
+- HiRES dataset:[Liu,2023](https://www.science.org/doi/10.1126/science.adg3797)
+                [https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE223917](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE223917)
+- GAGE-seq dataset:[zhou,2024](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE238001)
+                   [https://www.nature.com/articles/s41588-024-01745-3](https://www.nature.com/articles/s41588-024-01745-3)
+- DropleHiC dataset:[Chang,2024](https://www.nature.com/articles/s41587-024-02447-1)
+                    [https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE253407](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE253407)
+### required input files
+- Single-cell 3D genome dataset: For the input of Dip-C data analysis, directly use the file with the suffix '.contacts.pairs.txt.gz' provided by the original data. For the input of HiRES data analysis, directly use the file with the suffix '.pairs.gz' provided by the original data. For the input of GAGE-seq and DropletHiC, The data preprocessing process is provided in CellLoop package '/src/GAGE-seq_preprocess.py' and '/src/DropletHiC_processing'. The generated single-cell files have a suffix of '.pairs'.
+- Other initial features or embedding of single cells：
+
+
+
+
+
 ## 4. Update Log
 ## 5. Maintainers
 ## 6. Citation
