@@ -77,7 +77,7 @@ feature='higashi_embed'
 OUTDIR=INDIR+'_'+str(int(BINSIZE//1000))+'kb'+'_knn='+str(knn_cell_num)
 ```
 **A.** main_dir：the directory of CellLoop package. **B.** DATASET:The dataset currently being analyzed. **C.** BINSIZE：bin size used for binning the contacts. **D.**  MAXDIST: maximum distance from diagonal to consider.  **E.**  knn_cell_num: maximum cell number of KNN graph.  **F.**  LOW_CUTOFF: cut-off for removing short-range contacts. **G.** GENOME: genome name; hgxx or mmxx.  **G.** GENOME: genome name; hgxx or mmxx. **H.** INDIR: the directory of the input single-cell 3D genome data. **I.** FILE_SUFFIX: suffix of the input files. **J.** MINCONCNUM: minimum contact number for single cells. **K.** CHR_COLUMNS and POS_COLUMN:two integer column numbers for chromosomes and two integer column numbers for read positions in singel-cell 3D genome file.  **L.** feature: the type of feature used for initializing the embedding of cells. **M.** OUTDIR:output directory. 
-You can also set more parameters in the create_parser() function of CellLoop package. For example, use "--threaded" and "--num-proc" to set the number of processes used in threaded mode. This mode utilizes multiprocessing on a single machine.
+You can also set more parameters in the create_parser() function of CellLoop package. For example, use "--threaded" and "--num-proc" to set the number of processes used in threaded mode. This mode utilizes multiprocessing on a single machine. 
 
 - Execute CellLoop
 
@@ -87,7 +87,7 @@ cd CellLoop
 conda activate CellLoop 
 python CellLoop.py
 ```
-We can also execute CellLoop step1-5 by step in the IDE. CellLoop includes:
+We can also execute CellLoop step1-4 by step in the IDE. CellLoop includes:
 
 **Step 1.** Binning: we first constructed an undirected graph with bins as nodes from the raw contact map of the single cell with a specified resolution (20kb) with bin_sets() function.
 ```
@@ -117,12 +117,6 @@ aggreloops(indir = scloops_outdir,outdir = aggreloops_dir,\
                        rank = rank, n_proc = n_proc, logger = logger)
 ```
 The aggreloops function can visually display results by specifying Figure = True. 
-
-**Step 5.** Generating chromatin loops * cells matrix for downstream analysis.
-```
-clustercells(indir = aggreloops_dir,scloops_dir=scloops_outdir,outdir = clustercells_dir, chrom_lens = chrom_dict, binsize = args.binsize,
-                          rank = rank, n_proc = n_proc, logger = logger)        
-```
 
 ## 4. Update Log
 ## 5. Maintainers
