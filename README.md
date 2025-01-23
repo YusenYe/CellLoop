@@ -58,13 +58,13 @@ We will take the analysis of the Dip-C dataset as an example to explain the mean
 #########################Initial parameters##############################################
 main_dir='/home/dell/Desktop/CellLoop_test/CellLoop'
 DATASET='Dip-C'
-BINSIZE=20e3
+BINSIZE=100e3
 if BINSIZE<=10e3:
     MAXDIST=5000000
-    knn_cell_num=50
+    knn_cell_num=25
 else:
     MAXDIST=10000000
-    knn_cell_num=50
+    knn_cell_num=25
 LOW_CUTOFF=1e3   
 GENOME='mm10'
 #dataset dir
