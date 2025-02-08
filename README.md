@@ -1,4 +1,4 @@
-# CellLoop: identifying single-cell 3D genome chromatin loops #
+# CellLoop:Identifying single-cell 3D genome chromatin loops #
 
 ----------
 
