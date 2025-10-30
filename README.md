@@ -36,6 +36,7 @@ pip install -r requirements.txt
 ```
 ## 3. Usage
 ### Download the dataset that will be analyzed.
+
 - Dip-C dataset: [Tan,2021](https://www.cell.com/cell/fulltext/S0092-8674(20)31754-2?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS0092867420317542%3Fshowall%3Dtrue) 
                  [https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE162511](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE162511)
 - HiRES dataset: [Liu,2023](https://www.science.org/doi/10.1126/science.adg3797)
@@ -45,14 +46,15 @@ pip install -r requirements.txt
 
 
 ### Required input files
+
 - Single-cell 3D genome dataset: For the input of Dip-C data analysis, directly use the file with the suffix '.contacts.pairs.txt.gz' provided by the original data. For the input of HiRES data analysis, directly use the file with the suffix '.pairs.gz' provided by the original data. For the input of GAGE-seq, the data preprocessing process is provided in CellLoop package '/src/GAGE-seq_preprocess.py'. The generated single-cell files have a suffix of '.pairs'. All the single-cell data are placed in the same directory.
 - Other initial features or embedding of single cells：**Single-modality 3D genomic data**: For Dip-C dataset, CellLoop applied Higashi, an integrative framework by the formation of hypergraph representation learning, to obtain initial cell embedding. The data preprocessing and operation of Higashi can be referred to [https://github.com/ma-compbio/Higashi](https://github.com/ma-compbio/Higashi).
                                                       **Double-modality with 3D genomic and other omics data**: CellLoop obtains the initial cell embeddings through the data of other omics by uniform manifold approximation and projection (UMAP). For HiRES dataset, the data preprocessing process is provided in CellLoop package '/src/Hires_preprocess.py'. For GAGE-seq dataset, the data preprocessing process is provided in CellLoop package '/src/GAGE-seq_preprocess.py'. The generated single-cell files is saved as 'adata_rna.h5ad'
 
 ### CellLoop Parameter Guide
-#### 1. Required Parameters
+#### 1). Required Parameters
 
-Before running **CellLoop**, you must initialize several essential parameters according to your analysis task.
+- Before running **CellLoop**, you must initialize several essential parameters according to your analysis task.
 
 | **Parameter** | **Description** | **Example / Notes** |
 |----------------|-----------------|---------------------|
@@ -70,7 +72,7 @@ Before running **CellLoop**, you must initialize several essential parameters ac
 | `OUTDIR` | Path to the output directory where results will be saved. |  |
 | `CHR_LEN` | Path to the chromosome length file. |  |
 
-> 💡 **Note:**  
+>  **Note:**  
 > Before setting parameters, you need to modify the `CellLoop.py` file to specify the location of the CellLoop package, for example:
 > ```python
 > main_dir = '/home/dell/Desktop/CellLoop_test/CellLoop'
@@ -79,9 +81,9 @@ Before running **CellLoop**, you must initialize several essential parameters ac
 
 ---
 
-#### 2. Optional Parameters
+#### 2). Optional Parameters
 
-Additional parameters can be configured in the `create_parser()` function of `CellLoop.py` to control computational settings and local interaction definitions.
+- Additional parameters can be configured in the `create_parser()` function of `CellLoop.py` to control computational settings and local interaction definitions.
 
 | **Parameter** | **Description** | **Notes** |
 |----------------|-----------------|------------|
@@ -90,7 +92,7 @@ Additional parameters can be configured in the `create_parser()` function of `Ce
 | `--local-upper-limit` | Number of bins around the center (in each direction) that define the local neighborhood. |  |
 | `--filter file` | BED file specifying regions to be filtered out. |  |
 
->🧠 Tip
+> **Note:** 
 >
 >For best performance:
 >Use multi-core mode (--threaded True -n [CPU cores]) when analyzing large single-cell Hi-C datasets.
@@ -99,14 +101,12 @@ Additional parameters can be configured in the `create_parser()` function of `Ce
 ### Running CellLoop
 
 #### Example: Dip-C Dataset Analysis
----
-#####Overview
 
-In this section, we take the **Dip-C dataset** as an example to demonstrate how to configure parameters and run **CellLoop** step-by-step.  
-CellLoop is a scalable framework for identifying **chromatin loops at single-cell resolution**, integrating both intra-cell and inter-cell chromatin interaction signals.
----
+#### Overview
+  
+- In this section, we take the **Dip-C dataset** as an example to demonstrate how to configure parameters and run **CellLoop** step-by-step. CellLoop is a scalable framework for identifying **chromatin loops at single-cell resolution**, integrating both intra-cell and inter-cell chromatin interaction signals.
 
-- initial parameters
+#### initial parameters
 
 ```
 DATASET='Dip-C'
@@ -123,15 +123,17 @@ POS_COLUMNS=[2,4]
 FEATURE='higashi_embed'
 OUTDIR=INDIR+'_'+str(int(BINSIZE//1000))+'kb'+'_knn='+str(KNN_CELL_NUM)
 ```
-- Execute CellLoop
+#### Execute CellLoop
 
-We can execute CellLoop in the following command-line way.
+- We can execute CellLoop in the following command-line way.
+
 ```
 cd CellLoop
 conda activate CellLoop 
 python CellLoop.py
 ```
-We can also execute CellLoop step1-4 by step in the IDE. CellLoop includes:
+
+- We can also execute CellLoop step1-4 by step in the IDE. CellLoop includes:
 
 **Step 1.** Binning: we first constructed an undirected graph with bins as nodes from the raw contact map of the single cell with a specified resolution (20kb) with bin_sets() function.
 ```
@@ -162,7 +164,18 @@ aggreloops(indir = scloops_outdir,outdir = aggreloops_dir,\
 ```
 The aggreloops function can visually display results by specifying Figure = True. 
 
+---
+
 ## 4. Update Log
+
+---
+
 ## 5. Maintainers
 Yusen Ye (ysye@xdiian.edu.cn)
+
+---
+
 ## 6. Citation
+
+---
+
