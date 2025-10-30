@@ -12,8 +12,7 @@
 6. [Citation](#Citation)
 ## 1. Overview
 ![](/support/CellLoop.png)
-CellLoop algorithm that applies a density-based center detection algorithm to recognize chromatin loops of a specific single-cell based on approval of both intracell topology and intercell background strength of chromatin interactions. Intracell topology aims to extract the proximity of the genomic spatial positions within a single cell, while intercell background strength aims to extract the interaction probability of genomic positions of single cells within a specific biological context, such as cell states or spatial domains. Density-based center detection algorithm only needs to define two simple metrics for each interaction in parallel, making it possible to efficiently identify chromatin loops in thousands of single-cell 3D maps. Several advantages include:
-
+CellLoop identifies chromatin loops in individual cells using a density-based center detection algorithm, which integrates intra-cellular and neighboring inter-cellular contact maps through a re-voting strategy (Fig. 1a). By capturing both local topological associations and contextual support from neighboring cells, CellLoop enables robust identification of chromatin loops in sparse single-cell contact maps. Fig. 1b illustrates the analytical workflow and potential applications of CellLoop, including the visualization and comparison of LFmap and CFmap, the identification and visualization of cell-type-specific chromatin loops, the characterization of chromatin loop features that define distinct cell states, and linking cell-type-specific loops with gene expression. Several advantages include:
 (1). Loop Frequency Map (LFmap) obtained by CellLoop exhibited a significantly enhanced capacity. 
 
 (2). CellLoop detected single-cell chromatin loops with an average time of merely 0.99s at 100kb resolution and ~13s at 10kb resolution in parallel with the support of 10 CPU processes, ensuring its capacity to process tens of thousands or even hundreds of thousands of single-cell data within a tolerable time. 
@@ -31,7 +30,8 @@ cd CellLoop
 ```
 4. Create a new conda environment and install the relevant packages according to the requirements.txt.
 ```
-conda create -n CellLoop python=3.8 -r requirements.txt
+conda create -n CellLoop python=3.8
+conda activate CellLoop
 pip install -r requirements.txt
 ```
 ## 3. Usage
@@ -49,36 +49,80 @@ pip install -r requirements.txt
 - Other initial features or embedding of single cells：**Single-modality 3D genomic data**: For Dip-C dataset, CellLoop applied Higashi, an integrative framework by the formation of hypergraph representation learning, to obtain initial cell embedding. The data preprocessing and operation of Higashi can be referred to [https://github.com/ma-compbio/Higashi](https://github.com/ma-compbio/Higashi).
                                                       **Double-modality with 3D genomic and other omics data**: CellLoop obtains the initial cell embeddings through the data of other omics by uniform manifold approximation and projection (UMAP). For HiRES dataset, the data preprocessing process is provided in CellLoop package '/src/Hires_preprocess.py'. For GAGE-seq dataset, the data preprocessing process is provided in CellLoop package '/src/GAGE-seq_preprocess.py'. The generated single-cell files is saved as 'adata_rna.h5ad'
 
+### CellLoop Parameter Guide
+#### 1. Required Parameters
+
+Before running **CellLoop**, you must initialize several essential parameters according to your analysis task.
+
+| **Parameter** | **Description** | **Example / Notes** |
+|----------------|-----------------|---------------------|
+| `INDIR` | Path to the directory containing the input files. | e.g., `INDIR="/mnt/nas/Datasets/2020_Dip-C/GSE162511"` |
+| `FILE_SUFFIX` | Suffix of the raw input files. | e.g., `FILE_SUFFIX=".contacts.pairs.txt.gz"` |
+| `CHR_COLUMNS` | Two integer column numbers indicating the chromosome columns in the raw file. | e.g.,`CHR_COLUMNS`=[1,3] |
+| `POS_COLUMNS` | Two integer column numbers indicating the read position columns in the raw file. |e.g.,`POS_COLUMNS`=[2,4]  |
+| `GENOME` | Genome name. | e.g., `hg38` or `mm10` |
+| `MAXDIST` | Maximum genomic distance from the diagonal to consider. | e.g.,`MAXDIST`=10000000 |
+| `MINCONCNUM` | Minimum contact number per single cell (used to filter out low-quality cells). |  e.g.,`MINCONCNUM`=250000 |
+| `BINSIZE` | Bin size used for binning contacts; corresponds to the resolution of loop detection. | e.g., `10000` for 10 Kb |
+| `LOW_CUTOFF` | Cutoff value to remove ultra-short-range contacts. |  e.g., '1000' for less than 1kb |
+| `FEATURE` | Type of feature used for initializing the cell embeddings. | e.g., `FEATURE='higashi_embed'` |
+| `KNN_CELL_NUM` | Maximum number of neighboring cells used to estimate interaction probabilities within a biological context. |  |
+| `OUTDIR` | Path to the output directory where results will be saved. |  |
+| `CHR_LEN` | Path to the chromosome length file. |  |
+
+> 💡 **Note:**  
+> Before setting parameters, you need to modify the `CellLoop.py` file to specify the location of the CellLoop package, for example:
+> ```python
+> main_dir = '/home/dell/Desktop/CellLoop_test/CellLoop'
+> ```
+> *(Path to the directory containing the `CellLoop.py` file.)*
+
+---
+
+#### 2. Optional Parameters
+
+Additional parameters can be configured in the `create_parser()` function of `CellLoop.py` to control computational settings and local interaction definitions.
+
+| **Parameter** | **Description** | **Notes** |
+|----------------|-----------------|------------|
+| `--threaded` and `-n` | Control multiprocessing. When `--threaded=True`, CellLoop utilizes multiprocessing on a single machine. The `-n` parameter specifies the number of parallel threads. The default is single-thread mode (`--threaded=False`). | |
+| `--local-lower-limit` | Number of bins around the center (in each direction) to exclude from the local neighborhood. |  |
+| `--local-upper-limit` | Number of bins around the center (in each direction) that define the local neighborhood. |  |
+| `--filter file` | BED file specifying regions to be filtered out. |  |
+
+>🧠 Tip
+>
+>For best performance:
+>Use multi-core mode (--threaded True -n [CPU cores]) when analyzing large single-cell Hi-C datasets.
+---
+
 ### Running CellLoop
 
-- Initial parameters
+#### Example: Dip-C Dataset Analysis
+---
+#####Overview
 
-We will take the analysis of the Dip-C dataset as an example to explain the meaning and default values of the parameters.
+In this section, we take the **Dip-C dataset** as an example to demonstrate how to configure parameters and run **CellLoop** step-by-step.  
+CellLoop is a scalable framework for identifying **chromatin loops at single-cell resolution**, integrating both intra-cell and inter-cell chromatin interaction signals.
+---
+
+- initial parameters
+
 ```
-#########################Initial parameters##############################################
-main_dir='/home/dell/Desktop/CellLoop_test/CellLoop'
 DATASET='Dip-C'
 BINSIZE=100e3
-if BINSIZE<=10e3:
-    MAXDIST=5000000
-    knn_cell_num=25
-else:
-    MAXDIST=10000000
-    knn_cell_num=25
+MAXDIST=10000000
+KNN_CELL_NUM=50
 LOW_CUTOFF=1e3   
 GENOME='mm10'
-#dataset dir
 INDIR="/mnt/nas/Datasets/2020_Dip-C/GSE162511"##
 FILE_SUFFIX=".contacts.pairs.txt.gz"
 MINCONCNUM=250000
 CHR_COLUMNS=[1,3]
 POS_COLUMNS=[2,4]
-feature='higashi_embed'
-OUTDIR=INDIR+'_'+str(int(BINSIZE//1000))+'kb'+'_knn='+str(knn_cell_num)
+FEATURE='higashi_embed'
+OUTDIR=INDIR+'_'+str(int(BINSIZE//1000))+'kb'+'_knn='+str(KNN_CELL_NUM)
 ```
-**A.** main_dir：the directory of CellLoop package. **B.** DATASET:The dataset currently being analyzed. **C.** BINSIZE：bin size used for binning the contacts. **D.**  MAXDIST: maximum distance from diagonal to consider.  **E.**  knn_cell_num: maximum cell number of KNN graph.  **F.**  LOW_CUTOFF: cut-off for removing short-range contacts. **G.** GENOME: genome name; hgxx or mmxx.  **G.** GENOME: genome name; hgxx or mmxx. **H.** INDIR: the directory of the input single-cell 3D genome data. **I.** FILE_SUFFIX: suffix of the input files. **J.** MINCONCNUM: minimum contact number for single cells. **K.** CHR_COLUMNS and POS_COLUMN:two integer column numbers for chromosomes and two integer column numbers for read positions in singel-cell 3D genome file.  **L.** feature: the type of feature used for initializing the embedding of cells. **M.** OUTDIR:output directory. 
-You can also set more parameters in the create_parser() function of CellLoop package. For example, use "--threaded" and "--num-proc" to set the number of processes used in threaded mode. This mode utilizes multiprocessing on a single machine. 
-
 - Execute CellLoop
 
 We can execute CellLoop in the following command-line way.
