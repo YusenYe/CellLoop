@@ -2,7 +2,7 @@
 
 ----------
 
-### Latest updates: January 15, 2025，version 0.0.1
+### Latest updates: October 30, 2025，version 0.0.2
 ## Contents：
 1. [Overview](#Overviewn)
 2. [Installation](#Installation)
